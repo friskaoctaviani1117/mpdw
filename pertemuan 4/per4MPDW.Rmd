@@ -1,0 +1,248 @@
+---
+title: "per4 PSD"
+author: "friska"
+date: "2026-09-17"
+output: html_document
+---
+
+```{r}
+install.packages("widyr")
+```
+
+```{r setup, include=FALSE}
+# Jalankan install.packages() hanya jika package belum pernah diinstal
+# install.packages(c("reshape2", "ggplot2", "dplyr", "GGally",
+#                    "corrplot", "vcd", "hexbin", "tidytext",
+#                    "widyr", "tidyr"))
+
+library(reshape2)
+library(ggplot2)
+library(dplyr)
+library(GGally)
+library(corrplot)
+library(vcd)
+library(hexbin)
+```
+
+```{r}
+data(tips)
+
+str(tips)
+```
+```{r}
+head(tips)
+```
+
+```{r}
+ggplot(tips, aes(x = total_bill, y = tip)) +
+  geom_point(alpha = 0.65, color = "#C85F91") +
+  labs(
+    title = "Hubungan Total Tagihan dan Tip",
+    subtitle = "Setiap titik mewakili satu transaksi",
+    x = "Total Tagihan (USD)",
+    y = "Tip (USD)"
+  ) +
+  theme_minimal()
+```
+```{r}
+ggplot(tips, aes(x = total_bill, y = tip)) +
+  geom_point(alpha = 0.55, color = "#C85F91") +
+  geom_smooth(method = "lm", se = TRUE, color = "#294B67") +
+  labs(
+    title = "Scatter Plot dengan Garis Tren",
+    x = "Total Tagihan (USD)",
+    y = "Tip (USD)"
+  ) +
+  theme_minimal()
+```
+```{r}
+ggplot(tips, aes(x = total_bill, y = tip)) +
+  geom_hex(bins = 20) +
+  scale_fill_viridis_c() +
+  labs(
+    title = "Kepadatan Total Tagihan dan Tip",
+    x = "Total Tagihan (USD)",
+    y = "Tip (USD)",
+    fill = "Jumlah\nObservasi"
+  ) +
+  theme_minimal()
+```
+```{r}
+ggplot(tips, aes(x = total_bill, y = tip)) +
+  geom_point(alpha = 0.25, color = "#C85F91") +
+  geom_density_2d(color = "#294B67") +
+  labs(
+    title = "Contour Plot Total Tagihan dan Tip",
+    x = "Total Tagihan (USD)",
+    y = "Tip (USD)"
+  ) +
+  theme_minimal()
+```
+```{r}
+ggplot(tips, aes(x = day, y = total_bill, fill = day)) +
+  geom_boxplot(alpha = 0.8) +
+  labs(
+    title = "Sebaran Total Tagihan Menurut Hari",
+    x = "Hari",
+    y = "Total Tagihan (USD)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+```{r}
+ggplot(tips, aes(x = day, y = total_bill, fill = day)) +
+  geom_violin(trim = FALSE, alpha = 0.75) +
+  geom_boxplot(width = 0.10, fill = "white") +
+  labs(
+    title = "Distribusi Total Tagihan Menurut Hari",
+    x = "Hari",
+    y = "Total Tagihan (USD)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+```{r}
+ggplot(tips, aes(x = day, y = total_bill, color = day)) +
+  geom_jitter(width = 0.18, alpha = 0.65) +
+  labs(
+    title = "Data Mentah Total Tagihan Menurut Hari",
+    x = "Hari",
+    y = "Total Tagihan (USD)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+```{r}
+ggplot(tips, aes(x = day, fill = smoker)) +
+  geom_bar(position = "dodge") +
+  labs(
+    title = "Jumlah Transaksi Menurut Hari dan Status Perokok",
+    x = "Hari",
+    y = "Jumlah Transaksi",
+    fill = "Perokok?"
+  ) +
+  theme_minimal()
+```
+```{r}
+ggplot(tips, aes(x = day, fill = smoker)) +
+  geom_bar(position = "fill") +
+  labs(
+    title = "Proporsi Status Perokok pada Setiap Hari",
+    x = "Hari",
+    y = "Proporsi",
+    fill = "Perokok?"
+  ) +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal()
+```
+```{r}
+mosaic(
+  ~ day + smoker,
+  data = tips,
+  shade = TRUE,
+  main = "Mosaic Plot: Hari vs Status Perokok"
+)
+
+```
+```{r}
+tips %>%
+  select(total_bill, tip, size, sex) %>%
+  ggpairs(aes(color = sex, alpha = 0.6))
+
+```
+```{r}
+num_vars <- tips %>%
+  select(total_bill, tip, size)
+
+corr_matrix <- cor(num_vars)
+
+round(corr_matrix, 3)
+```
+```{r}
+num_vars <- tips %>%
+  select(total_bill, tip, size)
+
+corr_matrix <- cor(num_vars)
+
+round(corr_matrix, 3)
+```
+```{r}
+ggplot(tips, aes(x = total_bill, y = tip)) +
+  geom_point(alpha = 0.6, color = "#C85F91") +
+  facet_grid(sex ~ time) +
+  labs(
+    title = "Hubungan Total Tagihan dan Tip menurut Kelompok",
+    x = "Total Tagihan (USD)",
+    y = "Tip (USD)"
+  ) +
+  theme_minimal()
+```
+```{r}
+tips %>%
+  select(total_bill, tip, size, sex) %>%
+  ggparcoord(
+    columns = 1:3,
+    groupColumn = "sex",
+    scale = "uniminmax"
+  ) +
+  labs(
+    title = "Parallel Coordinates: total_bill, tip, size"
+  ) +
+  theme_minimal()
+```
+```{r}
+cor.test(
+  tips$total_bill,
+  tips$tip,
+  method = "pearson"
+)
+```
+```{r}
+cor.test(
+  tips$total_bill,
+  tips$tip,
+  method = "spearman",
+  exact = FALSE
+)
+```
+```{r}
+cor.test(
+  tips$total_bill,
+  tips$tip,
+  method = "kendall",
+  exact = FALSE
+)
+```
+```{r}
+library(tidytext)
+library(tidyr)
+library(widyr)
+```
+```{r}
+teks_contoh <- data.frame(
+  id = 1:3,
+  kalimat = c(
+    "sains data membantu memahami hubungan antar peubah",
+    "hubungan antar peubah penting untuk feature engineering",
+    "feature engineering membantu meningkatkan performa model"
+  )
+)
+
+teks_contoh
+```
+```{r}
+kata <- teks_contoh %>%
+  unnest_tokens(word, kalimat)
+
+head(kata)
+```
+```{r}
+cooc <- kata %>%
+  pairwise_count(word, id, sort = TRUE)
+
+head(cooc, 10)
+```
+```{r}
+
+```
+
